@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	netListener := getNetListener(7000)
+	netListener := getNetListener(8080)
 	gRPCServer := grpc.NewServer()
 
 	marketLedgerServiceImpl := repository.NewMarketLedgerServiceImpl()
