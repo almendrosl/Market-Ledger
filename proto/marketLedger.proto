@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package marketLedgerGrpc;
+
+
+service MarketLedgerService {
+  rpc CreateInvoice (CreateInvoiceReq) returns (CreateInvoiceResp) {
+  }
+
+}
+
+message Invoice {
+  int32 id = 1;
+  string number = 2;
+  string description = 3;
+  float faceValue = 4;
+  int32 customer_id = 5;
+}
+
+message CreateInvoiceReq {
+  Invoice invoice = 1;
+}
+
+message CreateInvoiceResp {
+  int32 invoice_id = 1;
+  Error error = 2;
+}
+
+message Error {
+  string code = 1;
+  string message = 2;
+}
