@@ -29,10 +29,7 @@ func (db Database) SellInvoice(ctx context.Context, in *pb.CreateInvoiceReq) (mo
 
 	// Run a query to get a count of all cats
 
-	if err != nil {
-		tx.Rollback()
-		return sellOrder, err
-	}
+
 
 	rowInvoice := tx.QueryRow("SELECT t.id, t.number, t.description, t.face_value FROM public.invoice t WHERE t.id = $1", iID)
 
@@ -44,13 +41,25 @@ func (db Database) SellInvoice(ctx context.Context, in *pb.CreateInvoiceReq) (mo
 		return sellOrder, err
 	}
 
-	_, err = tx.ExecContext(ctx, "INSERT INTO public.sell_order (invoice_id, seller_wants) VALUES ($1, $2)",
+	invoice.Issuer = models.Issuer{
+		Customer: models.Customer{
+			Id: int(in.SellOrder.Invoice.IssuerId),
+		},
+	}
+
+	soRow := tx.QueryRowContext(ctx, "INSERT INTO public.sell_order (invoice_id, seller_wants) VALUES ($1, $2) RETURNING id",
 		iID, in.SellOrder.SellerWants)
 	if err != nil {
 		tx.Rollback()
 		return sellOrder, err
 	}
 
+	var soID int
+	err = soRow.Scan(&soID)
+	if err != nil {
+		tx.Rollback()
+		return sellOrder, err
+	}
 
 	err = tx.Commit()
 	if err != nil {
@@ -58,7 +67,7 @@ func (db Database) SellInvoice(ctx context.Context, in *pb.CreateInvoiceReq) (mo
 	}
 
 	sellOrder = models.SellOrder{
-		Id:          0,
+		Id:          soID,
 		Invoice:     invoice,
 		SellerWants: in.SellOrder.SellerWants,
 		Bids:        nil,

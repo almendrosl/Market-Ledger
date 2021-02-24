@@ -24,13 +24,41 @@ message SellOrder {
 }
 
 
+message Transaction {
+  enum TransactionType {
+    CASH = 0;
+    OWN_INVOICE = 1;
+    RESERVED = 2;
+    EXPECTED_PAID = 3;
+    EXPECTED_PROFIT = 4;
+    CAPITAL = 5;
+    OWES_INVOICE = 6;
+    LOSS = 7;
+  }
+
+  enum TransactionDCType {
+    DEBIT = 0;
+    CREDIT = 1;
+  }
+
+  int32 id = 1;
+  string date = 2;
+  TransactionType transaction_type = 3;
+  string details = 4;
+  TransactionDCType transaction_d_c_type = 5;
+  float value = 6;
+  int32 customer_id = 7;
+  int32 sell_order_id = 8;
+}
+
 message CreateInvoiceReq {
   SellOrder sell_order = 2;
 }
 
 message CreateInvoiceResp {
   SellOrder sell_order = 1;
-  Error error = 2;
+  Transaction transaction = 2;
+  Error error = 3;
 }
 
 message Error {
