@@ -1,7 +1,7 @@
 package models
 
 type SellOrder struct {
-	Id          int
+	Id          int32
 	Invoice     Invoice
 	SellerWants float32
 	Bids        []Bid

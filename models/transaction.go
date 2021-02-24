@@ -23,7 +23,7 @@ const (
 )
 
 type Transaction struct {
-	Id                int
+	Id                int32
 	Date              time.Time
 	TransactionType   TransactionType
 	Details           string

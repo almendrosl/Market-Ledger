@@ -1,7 +1,7 @@
 package models
 
 type Customer struct {
-	Id     int
+	Id     int32
 	Name   string
 	Ledger []Transaction
 }

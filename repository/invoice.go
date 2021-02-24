@@ -43,7 +43,7 @@ func (db Database) SellInvoice(ctx context.Context, in *pb.CreateInvoiceReq) (mo
 
 	invoice.Issuer = models.Issuer{
 		Customer: models.Customer{
-			Id: int(in.SellOrder.Invoice.IssuerId),
+			Id: in.SellOrder.Invoice.IssuerId,
 		},
 	}
 
@@ -54,7 +54,7 @@ func (db Database) SellInvoice(ctx context.Context, in *pb.CreateInvoiceReq) (mo
 		return sellOrder, err
 	}
 
-	var soID int
+	var soID int32
 	err = soRow.Scan(&soID)
 	if err != nil {
 		tx.Rollback()
