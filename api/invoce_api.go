@@ -6,8 +6,6 @@ import (
 	"AREX-Market-Ledger/repository"
 	"context"
 	"fmt"
-	"log"
-	"strconv"
 	"time"
 )
 
@@ -23,11 +21,10 @@ func NewMarketLedgerServiceImpl(repo repository.Database) *MarketLedgerServiceIm
 //Add function implementation of gRPC Service.
 func (serviceImpl *MarketLedgerServiceImpl) CreateInvoice(ctx context.Context, in *pb.CreateInvoiceReq) (*pb.CreateInvoiceResp, error) {
 
-	log.Println("Received request for adding repository with id " + strconv.Itoa(int(in.SellOrder.Invoice.Id)))
 	sellOrder, err := serviceImpl.db.SellInvoice(ctx, in)
 	if err != nil {
 		return &pb.CreateInvoiceResp{
-			Error:     nil,
+			Error: nil,
 		}, err
 	}
 
@@ -49,14 +46,14 @@ func (serviceImpl *MarketLedgerServiceImpl) CreateInvoice(ctx context.Context, i
 	t, err = serviceImpl.db.SaveTransaction(ctx, t)
 	if err != nil {
 		return &pb.CreateInvoiceResp{
-			Error:     nil,
+			Error: nil,
 		}, err
 	}
 
 	return &pb.CreateInvoiceResp{
 		SellOrder: &pb.SellOrder{
-			Id:          int32(sellOrder.Id),
-			Invoice:     &pb.Invoice{
+			Id: int32(sellOrder.Id),
+			Invoice: &pb.Invoice{
 				Id:          int32(sellOrder.Invoice.Id),
 				Number:      sellOrder.Invoice.Number,
 				Description: sellOrder.Invoice.Description,
@@ -76,6 +73,6 @@ func (serviceImpl *MarketLedgerServiceImpl) CreateInvoice(ctx context.Context, i
 			CustomerId:        int32(t.Customer.Id),
 			SellOrderId:       int32(t.SellOrder.Id),
 		},
-		Error:     nil,
+		Error: nil,
 	}, err
 }

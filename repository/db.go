@@ -6,12 +6,24 @@ import (
 	"log"
 
 	_ "github.com/lib/pq"
+	"os"
 )
 
 var ErrNoMatch = fmt.Errorf("no matching record")
 
 type Database struct {
 	Conn *sql.DB
+}
+
+func InitDB() Database {
+	database, err := Initialize(os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"), os.Getenv("DB_PORT"),
+		os.Getenv("DB_HOST"), os.Getenv("DB_NAME"))
+	if err != nil {
+		log.Fatalf("Could not set up database: %v", err)
+	}
+
+	return database
 }
 
 func Initialize(DbUser, DbPassword, DbPort, DbHost, DbName string) (Database, error) {

@@ -9,7 +9,6 @@ import (
 	"google.golang.org/grpc"
 	"log"
 	"net"
-	"os"
 )
 
 func init() {
@@ -23,12 +22,7 @@ func main() {
 	netListener := getNetListener(8080)
 	gRPCServer := grpc.NewServer()
 
-	database, err := repository.Initialize(os.Getenv("DB_USER"),
-		os.Getenv("DB_PASSWORD"), os.Getenv("DB_PORT"),
-		os.Getenv("DB_HOST"), os.Getenv("DB_NAME"))
-	if err != nil {
-		log.Fatalf("Could not set up database: %v", err)
-	}
+	database := repository.InitDB()
 	defer database.Conn.Close()
 
 	marketLedgerServiceImpl := api.NewMarketLedgerServiceImpl(database)
@@ -36,8 +30,6 @@ func main() {
 		gRPCServer,
 		marketLedgerServiceImpl,
 	)
-
-
 
 	// start the server
 	if err := gRPCServer.Serve(netListener); err != nil {
