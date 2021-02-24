@@ -1,9 +1,9 @@
 package models
 
 type Customer struct {
-	Id      int
-	Name    string
-	Balance float32
+	Id     int
+	Name   string
+	Ledger []Transaction
 }
 
 type Issuer struct {

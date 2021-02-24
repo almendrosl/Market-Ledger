@@ -5,4 +5,5 @@ type SellOrder struct {
 	Invoice     Invoice
 	SellerWants float32
 	Bids        []Bid
+	Ledger      []Transaction
 }

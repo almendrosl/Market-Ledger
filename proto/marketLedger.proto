@@ -13,16 +13,23 @@ message Invoice {
   int32 id = 1;
   string number = 2;
   string description = 3;
-  float faceValue = 4;
-  int32 customer_id = 5;
+  float face_value = 4;
+  int32 issuer_id = 5;
 }
 
+message SellOrder {
+  int32 id = 1;
+  Invoice invoice = 2;
+  float seller_wants = 4;
+}
+
+
 message CreateInvoiceReq {
-  Invoice invoice = 1;
+  SellOrder sell_order = 2;
 }
 
 message CreateInvoiceResp {
-  int32 invoice_id = 1;
+  SellOrder sell_order = 1;
   Error error = 2;
 }
 
