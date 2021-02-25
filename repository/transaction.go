@@ -31,3 +31,37 @@ func (db Database) SaveTransaction(ctx context.Context, t models.Transaction) (m
 
 	return t, nil
 }
+
+func (db Database) getCashFromUser(ctx context.Context, uID int32) (float32, error) {
+
+	q := `SELECT sum(t.value), t.transaction_d_c_type  FROM public.transaction t
+			WHERE transaction_type = 'Cash' and customer_id = $1
+			group by t.transaction_d_c_type`
+
+	rows, err := db.Conn.QueryContext(ctx, q)
+	if err != nil {
+		return 0, err
+	}
+
+	defer rows.Close()
+
+	var debit float32
+	var credit float32
+
+	for rows.Next() {
+		var value float32
+		var ttype string
+		rows.Scan(&value, &ttype)
+
+		switch ttype {
+		case "debit":
+			debit = value
+		case "credit":
+			debit = value
+		default:
+			return 0, err
+		}
+	}
+
+	return debit - credit, nil
+}
