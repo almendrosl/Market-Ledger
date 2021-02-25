@@ -19,6 +19,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MarketLedgerServiceClient interface {
 	CreateInvoice(ctx context.Context, in *CreateInvoiceReq, opts ...grpc.CallOption) (*CreateInvoiceResp, error)
+	SellOrders(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*SellOrdersResp, error)
 }
 
 type marketLedgerServiceClient struct {
@@ -38,11 +39,21 @@ func (c *marketLedgerServiceClient) CreateInvoice(ctx context.Context, in *Creat
 	return out, nil
 }
 
+func (c *marketLedgerServiceClient) SellOrders(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*SellOrdersResp, error) {
+	out := new(SellOrdersResp)
+	err := c.cc.Invoke(ctx, "/marketLedgerGrpc.MarketLedgerService/SellOrders", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MarketLedgerServiceServer is the server API for MarketLedgerService service.
 // All implementations must embed UnimplementedMarketLedgerServiceServer
 // for forward compatibility
 type MarketLedgerServiceServer interface {
 	CreateInvoice(context.Context, *CreateInvoiceReq) (*CreateInvoiceResp, error)
+	SellOrders(context.Context, *Empty) (*SellOrdersResp, error)
 	mustEmbedUnimplementedMarketLedgerServiceServer()
 }
 
@@ -52,6 +63,9 @@ type UnimplementedMarketLedgerServiceServer struct {
 
 func (UnimplementedMarketLedgerServiceServer) CreateInvoice(context.Context, *CreateInvoiceReq) (*CreateInvoiceResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateInvoice not implemented")
+}
+func (UnimplementedMarketLedgerServiceServer) SellOrders(context.Context, *Empty) (*SellOrdersResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SellOrders not implemented")
 }
 func (UnimplementedMarketLedgerServiceServer) mustEmbedUnimplementedMarketLedgerServiceServer() {}
 
@@ -84,6 +98,24 @@ func _MarketLedgerService_CreateInvoice_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MarketLedgerService_SellOrders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MarketLedgerServiceServer).SellOrders(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/marketLedgerGrpc.MarketLedgerService/SellOrders",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MarketLedgerServiceServer).SellOrders(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MarketLedgerService_ServiceDesc is the grpc.ServiceDesc for MarketLedgerService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -94,6 +126,10 @@ var MarketLedgerService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateInvoice",
 			Handler:    _MarketLedgerService_CreateInvoice_Handler,
+		},
+		{
+			MethodName: "SellOrders",
+			Handler:    _MarketLedgerService_SellOrders_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

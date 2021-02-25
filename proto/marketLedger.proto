@@ -4,10 +4,11 @@ package marketLedgerGrpc;
 
 
 service MarketLedgerService {
-  rpc CreateInvoice (CreateInvoiceReq) returns (CreateInvoiceResp) {
-  }
-
+  rpc CreateInvoice (CreateInvoiceReq) returns (CreateInvoiceResp) {}
+  rpc SellOrders (Empty) returns (SellOrdersResp) {}
 }
+
+message Empty {}
 
 message Invoice {
   int32 id = 1;
@@ -59,6 +60,10 @@ message CreateInvoiceResp {
   SellOrder sell_order = 1;
   Transaction transaction = 2;
   Error error = 3;
+}
+
+message SellOrdersResp {
+  repeated SellOrder sell_orders= 1;
 }
 
 message Error {
