@@ -6,9 +6,18 @@ package marketLedgerGrpc;
 service MarketLedgerService {
   rpc CreateInvoice (CreateInvoiceReq) returns (CreateInvoiceResp) {}
   rpc SellOrders (Empty) returns (SellOrdersResp) {}
+  rpc PlaceBid (PlaceBidReq) returns (PlaceBidResp) {}
 }
 
 message Empty {}
+
+message Bid  {
+  int32 id = 1;
+  float size = 2;
+  float amount = 3;
+  int32 investor_id = 4;
+  int32 sell_order_id = 5;
+}
 
 message Invoice {
   int32 id = 1;
@@ -63,7 +72,15 @@ message CreateInvoiceResp {
 }
 
 message SellOrdersResp {
-  repeated SellOrder sell_orders= 1;
+  repeated SellOrder sell_orders = 1;
+}
+
+message PlaceBidReq{
+  Bid bid = 1;
+}
+
+message PlaceBidResp{
+  Bid bid = 1;
 }
 
 message Error {

@@ -32,13 +32,13 @@ func (db Database) SaveTransaction(ctx context.Context, t models.Transaction) (m
 	return t, nil
 }
 
-func (db Database) getCashFromUser(ctx context.Context, uID int32) (float32, error) {
+func (db Database) GetCashFromUser(ctx context.Context, uID int32) (float32, error) {
 
 	q := `SELECT sum(t.value), t.transaction_d_c_type  FROM public.transaction t
 			WHERE transaction_type = 'Cash' and customer_id = $1
 			group by t.transaction_d_c_type`
 
-	rows, err := db.Conn.QueryContext(ctx, q)
+	rows, err := db.Conn.QueryContext(ctx, q, uID)
 	if err != nil {
 		return 0, err
 	}
