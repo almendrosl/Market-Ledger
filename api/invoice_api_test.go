@@ -48,7 +48,7 @@ func dialer() func(context.Context, string) (net.Conn, error) {
 	}
 }
 
-func TestDepositServer_Deposit(t *testing.T) {
+func TestCreateInvoice(t *testing.T) {
 	tests := []struct {
 		name string
 		req  *pb.CreateInvoiceReq
