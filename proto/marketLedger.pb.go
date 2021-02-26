@@ -20,6 +20,58 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type SellOrder_SellOrderState int32
+
+const (
+	SellOrder_UNLOCKED  SellOrder_SellOrderState = 0
+	SellOrder_LOCKED    SellOrder_SellOrderState = 1
+	SellOrder_COMMITTED SellOrder_SellOrderState = 2
+	SellOrder_REVERSED  SellOrder_SellOrderState = 3
+)
+
+// Enum value maps for SellOrder_SellOrderState.
+var (
+	SellOrder_SellOrderState_name = map[int32]string{
+		0: "UNLOCKED",
+		1: "LOCKED",
+		2: "COMMITTED",
+		3: "REVERSED",
+	}
+	SellOrder_SellOrderState_value = map[string]int32{
+		"UNLOCKED":  0,
+		"LOCKED":    1,
+		"COMMITTED": 2,
+		"REVERSED":  3,
+	}
+)
+
+func (x SellOrder_SellOrderState) Enum() *SellOrder_SellOrderState {
+	p := new(SellOrder_SellOrderState)
+	*p = x
+	return p
+}
+
+func (x SellOrder_SellOrderState) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (SellOrder_SellOrderState) Descriptor() protoreflect.EnumDescriptor {
+	return file_proto_marketLedger_proto_enumTypes[0].Descriptor()
+}
+
+func (SellOrder_SellOrderState) Type() protoreflect.EnumType {
+	return &file_proto_marketLedger_proto_enumTypes[0]
+}
+
+func (x SellOrder_SellOrderState) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use SellOrder_SellOrderState.Descriptor instead.
+func (SellOrder_SellOrderState) EnumDescriptor() ([]byte, []int) {
+	return file_proto_marketLedger_proto_rawDescGZIP(), []int{3, 0}
+}
+
 type Transaction_TransactionType int32
 
 const (
@@ -68,11 +120,11 @@ func (x Transaction_TransactionType) String() string {
 }
 
 func (Transaction_TransactionType) Descriptor() protoreflect.EnumDescriptor {
-	return file_proto_marketLedger_proto_enumTypes[0].Descriptor()
+	return file_proto_marketLedger_proto_enumTypes[1].Descriptor()
 }
 
 func (Transaction_TransactionType) Type() protoreflect.EnumType {
-	return &file_proto_marketLedger_proto_enumTypes[0]
+	return &file_proto_marketLedger_proto_enumTypes[1]
 }
 
 func (x Transaction_TransactionType) Number() protoreflect.EnumNumber {
@@ -114,11 +166,11 @@ func (x Transaction_TransactionDCType) String() string {
 }
 
 func (Transaction_TransactionDCType) Descriptor() protoreflect.EnumDescriptor {
-	return file_proto_marketLedger_proto_enumTypes[1].Descriptor()
+	return file_proto_marketLedger_proto_enumTypes[2].Descriptor()
 }
 
 func (Transaction_TransactionDCType) Type() protoreflect.EnumType {
-	return &file_proto_marketLedger_proto_enumTypes[1]
+	return &file_proto_marketLedger_proto_enumTypes[2]
 }
 
 func (x Transaction_TransactionDCType) Number() protoreflect.EnumNumber {
@@ -331,9 +383,10 @@ type SellOrder struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Id          int32    `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Invoice     *Invoice `protobuf:"bytes,2,opt,name=invoice,proto3" json:"invoice,omitempty"`
-	SellerWants float32  `protobuf:"fixed32,4,opt,name=seller_wants,json=sellerWants,proto3" json:"seller_wants,omitempty"`
+	Id             int32                    `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Invoice        *Invoice                 `protobuf:"bytes,2,opt,name=invoice,proto3" json:"invoice,omitempty"`
+	SellerWants    float32                  `protobuf:"fixed32,4,opt,name=seller_wants,json=sellerWants,proto3" json:"seller_wants,omitempty"`
+	SellOrderState SellOrder_SellOrderState `protobuf:"varint,5,opt,name=sell_order_state,json=sellOrderState,proto3,enum=marketLedgerGrpc.SellOrder_SellOrderState" json:"sell_order_state,omitempty"`
 }
 
 func (x *SellOrder) Reset() {
@@ -387,6 +440,13 @@ func (x *SellOrder) GetSellerWants() float32 {
 		return x.SellerWants
 	}
 	return 0
+}
+
+func (x *SellOrder) GetSellOrderState() SellOrder_SellOrderState {
+	if x != nil {
+		return x.SellOrderState
+	}
+	return SellOrder_UNLOCKED
 }
 
 type Transaction struct {
@@ -822,14 +882,24 @@ var file_proto_marketLedger_proto_rawDesc = []byte{
 	0x75, 0x65, 0x18, 0x04, 0x20, 0x01, 0x28, 0x02, 0x52, 0x09, 0x66, 0x61, 0x63, 0x65, 0x56, 0x61,
 	0x6c, 0x75, 0x65, 0x12, 0x1b, 0x0a, 0x09, 0x69, 0x73, 0x73, 0x75, 0x65, 0x72, 0x5f, 0x69, 0x64,
 	0x18, 0x05, 0x20, 0x01, 0x28, 0x05, 0x52, 0x08, 0x69, 0x73, 0x73, 0x75, 0x65, 0x72, 0x49, 0x64,
-	0x22, 0x73, 0x0a, 0x09, 0x53, 0x65, 0x6c, 0x6c, 0x4f, 0x72, 0x64, 0x65, 0x72, 0x12, 0x0e, 0x0a,
-	0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x02, 0x69, 0x64, 0x12, 0x33, 0x0a,
-	0x07, 0x69, 0x6e, 0x76, 0x6f, 0x69, 0x63, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x19,
-	0x2e, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x4c, 0x65, 0x64, 0x67, 0x65, 0x72, 0x47, 0x72, 0x70,
-	0x63, 0x2e, 0x49, 0x6e, 0x76, 0x6f, 0x69, 0x63, 0x65, 0x52, 0x07, 0x69, 0x6e, 0x76, 0x6f, 0x69,
-	0x63, 0x65, 0x12, 0x21, 0x0a, 0x0c, 0x73, 0x65, 0x6c, 0x6c, 0x65, 0x72, 0x5f, 0x77, 0x61, 0x6e,
-	0x74, 0x73, 0x18, 0x04, 0x20, 0x01, 0x28, 0x02, 0x52, 0x0b, 0x73, 0x65, 0x6c, 0x6c, 0x65, 0x72,
-	0x57, 0x61, 0x6e, 0x74, 0x73, 0x22, 0x9c, 0x04, 0x0a, 0x0b, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61,
+	0x22, 0x92, 0x02, 0x0a, 0x09, 0x53, 0x65, 0x6c, 0x6c, 0x4f, 0x72, 0x64, 0x65, 0x72, 0x12, 0x0e,
+	0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x02, 0x69, 0x64, 0x12, 0x33,
+	0x0a, 0x07, 0x69, 0x6e, 0x76, 0x6f, 0x69, 0x63, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32,
+	0x19, 0x2e, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x4c, 0x65, 0x64, 0x67, 0x65, 0x72, 0x47, 0x72,
+	0x70, 0x63, 0x2e, 0x49, 0x6e, 0x76, 0x6f, 0x69, 0x63, 0x65, 0x52, 0x07, 0x69, 0x6e, 0x76, 0x6f,
+	0x69, 0x63, 0x65, 0x12, 0x21, 0x0a, 0x0c, 0x73, 0x65, 0x6c, 0x6c, 0x65, 0x72, 0x5f, 0x77, 0x61,
+	0x6e, 0x74, 0x73, 0x18, 0x04, 0x20, 0x01, 0x28, 0x02, 0x52, 0x0b, 0x73, 0x65, 0x6c, 0x6c, 0x65,
+	0x72, 0x57, 0x61, 0x6e, 0x74, 0x73, 0x12, 0x54, 0x0a, 0x10, 0x73, 0x65, 0x6c, 0x6c, 0x5f, 0x6f,
+	0x72, 0x64, 0x65, 0x72, 0x5f, 0x73, 0x74, 0x61, 0x74, 0x65, 0x18, 0x05, 0x20, 0x01, 0x28, 0x0e,
+	0x32, 0x2a, 0x2e, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x74, 0x4c, 0x65, 0x64, 0x67, 0x65, 0x72, 0x47,
+	0x72, 0x70, 0x63, 0x2e, 0x53, 0x65, 0x6c, 0x6c, 0x4f, 0x72, 0x64, 0x65, 0x72, 0x2e, 0x53, 0x65,
+	0x6c, 0x6c, 0x4f, 0x72, 0x64, 0x65, 0x72, 0x53, 0x74, 0x61, 0x74, 0x65, 0x52, 0x0e, 0x73, 0x65,
+	0x6c, 0x6c, 0x4f, 0x72, 0x64, 0x65, 0x72, 0x53, 0x74, 0x61, 0x74, 0x65, 0x22, 0x47, 0x0a, 0x0e,
+	0x53, 0x65, 0x6c, 0x6c, 0x4f, 0x72, 0x64, 0x65, 0x72, 0x53, 0x74, 0x61, 0x74, 0x65, 0x12, 0x0c,
+	0x0a, 0x08, 0x55, 0x4e, 0x4c, 0x4f, 0x43, 0x4b, 0x45, 0x44, 0x10, 0x00, 0x12, 0x0a, 0x0a, 0x06,
+	0x4c, 0x4f, 0x43, 0x4b, 0x45, 0x44, 0x10, 0x01, 0x12, 0x0d, 0x0a, 0x09, 0x43, 0x4f, 0x4d, 0x4d,
+	0x49, 0x54, 0x54, 0x45, 0x44, 0x10, 0x02, 0x12, 0x0c, 0x0a, 0x08, 0x52, 0x45, 0x56, 0x45, 0x52,
+	0x53, 0x45, 0x44, 0x10, 0x03, 0x22, 0x9c, 0x04, 0x0a, 0x0b, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61,
 	0x63, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28,
 	0x05, 0x52, 0x02, 0x69, 0x64, 0x12, 0x12, 0x0a, 0x04, 0x64, 0x61, 0x74, 0x65, 0x18, 0x02, 0x20,
 	0x01, 0x28, 0x09, 0x52, 0x04, 0x64, 0x61, 0x74, 0x65, 0x12, 0x58, 0x0a, 0x10, 0x74, 0x72, 0x61,
@@ -928,45 +998,47 @@ func file_proto_marketLedger_proto_rawDescGZIP() []byte {
 	return file_proto_marketLedger_proto_rawDescData
 }
 
-var file_proto_marketLedger_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_proto_marketLedger_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
 var file_proto_marketLedger_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_proto_marketLedger_proto_goTypes = []interface{}{
-	(Transaction_TransactionType)(0),   // 0: marketLedgerGrpc.Transaction.TransactionType
-	(Transaction_TransactionDCType)(0), // 1: marketLedgerGrpc.Transaction.TransactionDCType
-	(*Empty)(nil),                      // 2: marketLedgerGrpc.Empty
-	(*Bid)(nil),                        // 3: marketLedgerGrpc.Bid
-	(*Invoice)(nil),                    // 4: marketLedgerGrpc.Invoice
-	(*SellOrder)(nil),                  // 5: marketLedgerGrpc.SellOrder
-	(*Transaction)(nil),                // 6: marketLedgerGrpc.Transaction
-	(*CreateInvoiceReq)(nil),           // 7: marketLedgerGrpc.CreateInvoiceReq
-	(*CreateInvoiceResp)(nil),          // 8: marketLedgerGrpc.CreateInvoiceResp
-	(*SellOrdersResp)(nil),             // 9: marketLedgerGrpc.SellOrdersResp
-	(*PlaceBidReq)(nil),                // 10: marketLedgerGrpc.PlaceBidReq
-	(*PlaceBidResp)(nil),               // 11: marketLedgerGrpc.PlaceBidResp
-	(*Error)(nil),                      // 12: marketLedgerGrpc.Error
+	(SellOrder_SellOrderState)(0),      // 0: marketLedgerGrpc.SellOrder.SellOrderState
+	(Transaction_TransactionType)(0),   // 1: marketLedgerGrpc.Transaction.TransactionType
+	(Transaction_TransactionDCType)(0), // 2: marketLedgerGrpc.Transaction.TransactionDCType
+	(*Empty)(nil),                      // 3: marketLedgerGrpc.Empty
+	(*Bid)(nil),                        // 4: marketLedgerGrpc.Bid
+	(*Invoice)(nil),                    // 5: marketLedgerGrpc.Invoice
+	(*SellOrder)(nil),                  // 6: marketLedgerGrpc.SellOrder
+	(*Transaction)(nil),                // 7: marketLedgerGrpc.Transaction
+	(*CreateInvoiceReq)(nil),           // 8: marketLedgerGrpc.CreateInvoiceReq
+	(*CreateInvoiceResp)(nil),          // 9: marketLedgerGrpc.CreateInvoiceResp
+	(*SellOrdersResp)(nil),             // 10: marketLedgerGrpc.SellOrdersResp
+	(*PlaceBidReq)(nil),                // 11: marketLedgerGrpc.PlaceBidReq
+	(*PlaceBidResp)(nil),               // 12: marketLedgerGrpc.PlaceBidResp
+	(*Error)(nil),                      // 13: marketLedgerGrpc.Error
 }
 var file_proto_marketLedger_proto_depIdxs = []int32{
-	4,  // 0: marketLedgerGrpc.SellOrder.invoice:type_name -> marketLedgerGrpc.Invoice
-	0,  // 1: marketLedgerGrpc.Transaction.transaction_type:type_name -> marketLedgerGrpc.Transaction.TransactionType
-	1,  // 2: marketLedgerGrpc.Transaction.transaction_d_c_type:type_name -> marketLedgerGrpc.Transaction.TransactionDCType
-	5,  // 3: marketLedgerGrpc.CreateInvoiceReq.sell_order:type_name -> marketLedgerGrpc.SellOrder
-	5,  // 4: marketLedgerGrpc.CreateInvoiceResp.sell_order:type_name -> marketLedgerGrpc.SellOrder
-	6,  // 5: marketLedgerGrpc.CreateInvoiceResp.transaction:type_name -> marketLedgerGrpc.Transaction
-	12, // 6: marketLedgerGrpc.CreateInvoiceResp.error:type_name -> marketLedgerGrpc.Error
-	5,  // 7: marketLedgerGrpc.SellOrdersResp.sell_orders:type_name -> marketLedgerGrpc.SellOrder
-	3,  // 8: marketLedgerGrpc.PlaceBidReq.bid:type_name -> marketLedgerGrpc.Bid
-	3,  // 9: marketLedgerGrpc.PlaceBidResp.bid:type_name -> marketLedgerGrpc.Bid
-	7,  // 10: marketLedgerGrpc.MarketLedgerService.CreateInvoice:input_type -> marketLedgerGrpc.CreateInvoiceReq
-	2,  // 11: marketLedgerGrpc.MarketLedgerService.SellOrders:input_type -> marketLedgerGrpc.Empty
-	10, // 12: marketLedgerGrpc.MarketLedgerService.PlaceBid:input_type -> marketLedgerGrpc.PlaceBidReq
-	8,  // 13: marketLedgerGrpc.MarketLedgerService.CreateInvoice:output_type -> marketLedgerGrpc.CreateInvoiceResp
-	9,  // 14: marketLedgerGrpc.MarketLedgerService.SellOrders:output_type -> marketLedgerGrpc.SellOrdersResp
-	11, // 15: marketLedgerGrpc.MarketLedgerService.PlaceBid:output_type -> marketLedgerGrpc.PlaceBidResp
-	13, // [13:16] is the sub-list for method output_type
-	10, // [10:13] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	5,  // 0: marketLedgerGrpc.SellOrder.invoice:type_name -> marketLedgerGrpc.Invoice
+	0,  // 1: marketLedgerGrpc.SellOrder.sell_order_state:type_name -> marketLedgerGrpc.SellOrder.SellOrderState
+	1,  // 2: marketLedgerGrpc.Transaction.transaction_type:type_name -> marketLedgerGrpc.Transaction.TransactionType
+	2,  // 3: marketLedgerGrpc.Transaction.transaction_d_c_type:type_name -> marketLedgerGrpc.Transaction.TransactionDCType
+	6,  // 4: marketLedgerGrpc.CreateInvoiceReq.sell_order:type_name -> marketLedgerGrpc.SellOrder
+	6,  // 5: marketLedgerGrpc.CreateInvoiceResp.sell_order:type_name -> marketLedgerGrpc.SellOrder
+	7,  // 6: marketLedgerGrpc.CreateInvoiceResp.transaction:type_name -> marketLedgerGrpc.Transaction
+	13, // 7: marketLedgerGrpc.CreateInvoiceResp.error:type_name -> marketLedgerGrpc.Error
+	6,  // 8: marketLedgerGrpc.SellOrdersResp.sell_orders:type_name -> marketLedgerGrpc.SellOrder
+	4,  // 9: marketLedgerGrpc.PlaceBidReq.bid:type_name -> marketLedgerGrpc.Bid
+	4,  // 10: marketLedgerGrpc.PlaceBidResp.bid:type_name -> marketLedgerGrpc.Bid
+	8,  // 11: marketLedgerGrpc.MarketLedgerService.CreateInvoice:input_type -> marketLedgerGrpc.CreateInvoiceReq
+	3,  // 12: marketLedgerGrpc.MarketLedgerService.SellOrders:input_type -> marketLedgerGrpc.Empty
+	11, // 13: marketLedgerGrpc.MarketLedgerService.PlaceBid:input_type -> marketLedgerGrpc.PlaceBidReq
+	9,  // 14: marketLedgerGrpc.MarketLedgerService.CreateInvoice:output_type -> marketLedgerGrpc.CreateInvoiceResp
+	10, // 15: marketLedgerGrpc.MarketLedgerService.SellOrders:output_type -> marketLedgerGrpc.SellOrdersResp
+	12, // 16: marketLedgerGrpc.MarketLedgerService.PlaceBid:output_type -> marketLedgerGrpc.PlaceBidResp
+	14, // [14:17] is the sub-list for method output_type
+	11, // [11:14] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_proto_marketLedger_proto_init() }
@@ -1113,7 +1185,7 @@ func file_proto_marketLedger_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_proto_marketLedger_proto_rawDesc,
-			NumEnums:      2,
+			NumEnums:      3,
 			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   1,

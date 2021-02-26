@@ -28,9 +28,17 @@ message Invoice {
 }
 
 message SellOrder {
+  enum SellOrderState{
+    UNLOCKED = 0;
+    LOCKED = 1;
+    COMMITTED = 2;
+    REVERSED = 3;
+  }
+
   int32 id = 1;
   Invoice invoice = 2;
   float seller_wants = 4;
+  SellOrderState sell_order_state = 5;
 }
 
 

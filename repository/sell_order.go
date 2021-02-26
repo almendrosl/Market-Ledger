@@ -9,7 +9,7 @@ func (db Database) SellOrders(ctx context.Context) ([]models.SellOrder, error) {
 	var sellOrders []models.SellOrder
 
 	q := `
-    SELECT t.id, t.seller_wants, i.id, i.number, i.description, i.face_value , i.issuer_id
+    SELECT t.id, t.seller_wants, i.id, i.number, i.description, i.face_value , i.issuer_id, t.sell_order_state
     	FROM public.sell_order t
 		join invoice i on i.id = t.invoice_id;
     `
@@ -24,7 +24,7 @@ func (db Database) SellOrders(ctx context.Context) ([]models.SellOrder, error) {
 	for rows.Next() {
 		var so models.SellOrder
 		rows.Scan(&so.Id, &so.SellerWants, &so.Invoice.Id, &so.Invoice.Number,
-			&so.Invoice.Description, &so.Invoice.FaceValue, &so.Invoice.Issuer.Id)
+			&so.Invoice.Description, &so.Invoice.FaceValue, &so.Invoice.Issuer.Id, &so.SellOrderState)
 		sellOrders = append(sellOrders, so)
 	}
 
