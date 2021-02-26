@@ -3,6 +3,7 @@ package api
 import (
 	"AREX-Market-Ledger/models"
 	pb "AREX-Market-Ledger/proto"
+	"AREX-Market-Ledger/service"
 	"context"
 	"errors"
 	"fmt"
@@ -17,7 +18,7 @@ func (serviceImpl *MarketLedgerServiceImpl) PlaceBid(ctx context.Context, in *pb
 		return bidResp, err
 	}
 
-	if balance < in.Bid.Amount{
+	if balance < in.Bid.Amount {
 		return nil, errors.New("not enough balance")
 	}
 
@@ -61,5 +62,18 @@ func (serviceImpl *MarketLedgerServiceImpl) PlaceBid(ctx context.Context, in *pb
 		},
 	}
 
+	go service.MatchingAlgorithm(ctx, models.Bid{
+		Id:     bidID,
+		Size:   in.Bid.Size,
+		Amount: in.Bid.Amount,
+		Investor: models.Investor{
+			Customer: models.Customer{
+				Id: in.Bid.InvestorId,
+			},
+		},
+		SellOrder: models.SellOrder{
+			Id: in.Bid.SellOrderId,
+		},
+	})
 	return bidResp, nil
 }

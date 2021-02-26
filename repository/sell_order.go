@@ -53,7 +53,7 @@ func (db Database) OneSellOrder(ctx context.Context, soID int32) (models.SellOrd
 		WHERE b.sell_order_id = $1
     `
 
-	rows, err := db.Conn.QueryContext(ctx, qb)
+	rows, err := db.Conn.QueryContext(ctx, qb, so.Id)
 	if err != nil {
 		return so, err
 	}
@@ -71,4 +71,23 @@ func (db Database) OneSellOrder(ctx context.Context, soID int32) (models.SellOrd
 	so.Bids = bids
 
 	return so, nil
+}
+
+
+func (db Database) UpdateSellOrderState(ctx context.Context, sellOrder models.SellOrder) error {
+	q := `UPDATE public.sell_order SET sell_order_state =$1 WHERE id =$2`
+
+	stmt, err := db.Conn.PrepareContext(ctx, q)
+	if err != nil {
+		return err
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx, sellOrder.SellOrderState, sellOrder.Id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
