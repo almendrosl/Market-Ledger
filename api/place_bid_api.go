@@ -33,23 +33,23 @@ func (serviceImpl *MarketLedgerServiceImpl) PlaceBid(ctx context.Context, in *pb
 		in.Bid.Amount)
 
 	_, err = serviceImpl.db.SaveTransaction(ctx, models.Transaction{
-		Date:              time.Now(),
-		TransactionType:   models.CASH,
-		Details:           details,
-		TransactionDCType: models.CREDIT,
-		Value:             in.Bid.Amount,
-		Customer:          models.Customer{Id: in.Bid.InvestorId},
-		SellOrder:         models.SellOrder{Id: in.Bid.SellOrderId},
+		Date:            time.Now(),
+		TransactionType: models.CASH,
+		Details:         details,
+		Credit:          in.Bid.Amount,
+		Debit:           models.ZeroCreditDebit,
+		Customer:        models.Customer{Id: in.Bid.InvestorId},
+		SellOrder:       models.SellOrder{Id: in.Bid.SellOrderId},
 	})
 
 	_, err = serviceImpl.db.SaveTransaction(ctx, models.Transaction{
-		Date:              time.Now(),
-		TransactionType:   models.RESERVED,
-		Details:           details,
-		TransactionDCType: models.DEBIT,
-		Value:             in.Bid.Amount,
-		Customer:          models.Customer{Id: in.Bid.InvestorId},
-		SellOrder:         models.SellOrder{Id: in.Bid.SellOrderId},
+		Date:            time.Now(),
+		TransactionType: models.RESERVED,
+		Details:         details,
+		Debit:           in.Bid.Amount,
+		Credit:          models.ZeroCreditDebit,
+		Customer:        models.Customer{Id: in.Bid.InvestorId},
+		SellOrder:       models.SellOrder{Id: in.Bid.SellOrderId},
 	})
 
 	bidResp = &pb.PlaceBidResp{

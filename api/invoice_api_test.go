@@ -70,7 +70,7 @@ func TestCreateInvoice(t *testing.T) {
 			&pb.CreateInvoiceResp{
 				SellOrder: nil,
 				Transaction: &pb.Transaction{
-					Value: 3434.43,
+					Debit: 3434.43,
 				},
 				Error: nil,
 			},
@@ -93,8 +93,8 @@ func TestCreateInvoice(t *testing.T) {
 			response, err := client.CreateInvoice(ctx, tt.req)
 
 			if response != nil {
-				if response.Transaction.Value != tt.res.Transaction.Value {
-					t.Error("response: expected", tt.res.Transaction.Value, "received", response.Transaction.Value)
+				if response.Transaction.Debit != tt.res.Transaction.Debit {
+					t.Error("response: expected", tt.res.Transaction.Debit, "received", response.Transaction.Debit)
 				}
 			}
 

@@ -4,6 +4,8 @@ import "time"
 
 type TransactionType string
 
+const ZeroCreditDebit = 0.0
+
 const (
 	CASH            TransactionType = "Cash"
 	OWN_INVOICE                     = "OwnInvoice"
@@ -15,20 +17,13 @@ const (
 	LOSS                            = "Loss"
 )
 
-type TransactionDCType string
-
-const (
-	DEBIT  TransactionDCType = "debit"
-	CREDIT TransactionDCType = "credit"
-)
-
 type Transaction struct {
-	Id                int32
-	Date              time.Time
-	TransactionType   TransactionType
-	Details           string
-	TransactionDCType TransactionDCType
-	Value             float32
-	Customer          Customer
-	SellOrder         SellOrder
+	Id              int32
+	Date            time.Time
+	TransactionType TransactionType
+	Details         string
+	Debit           float32
+	Credit          float32
+	Customer        Customer
+	SellOrder       SellOrder
 }

@@ -57,17 +57,12 @@ message Transaction {
     LOSS = 7;
   }
 
-  enum TransactionDCType {
-    DEBIT = 0;
-    CREDIT = 1;
-  }
-
   int32 id = 1;
   string date = 2;
   TransactionType transaction_type = 3;
   string details = 4;
-  TransactionDCType transaction_d_c_type = 5;
-  float value = 6;
+  float debit = 5;
+  float credit = 6;
   int32 customer_id = 7;
   int32 sell_order_id = 8;
 }

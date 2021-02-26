@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func MatchingAlgorithm(ctx context.Context,  bid models.Bid) {
+func MatchingAlgorithm(ctx context.Context, bid models.Bid) {
 	db := repository.InitDB()
 	defer db.Conn.Close()
 	ctx = context.Background()
@@ -21,7 +21,7 @@ func MatchingAlgorithm(ctx context.Context,  bid models.Bid) {
 	soDiscount := discount(sellOrder.SellerWants, sellOrder.Invoice.FaceValue)
 	bidDiscount := discount(bid.Amount, bid.Size)
 
-	if bidDiscount > soDiscount{
+	if bidDiscount > soDiscount {
 		err := db.DeleteBid(ctx, bid)
 		if err != nil {
 			return
@@ -31,13 +31,13 @@ func MatchingAlgorithm(ctx context.Context,  bid models.Bid) {
 	}
 
 	var totalBids float32
-	for _, bidTemp := range sellOrder.Bids{
+	for _, bidTemp := range sellOrder.Bids {
 		totalBids += bidTemp.Size
 	}
 
 	sellOrder.SellOrderState = models.LOCKED
 
-	if totalBids < sellOrder.Invoice.FaceValue{
+	if totalBids < sellOrder.Invoice.FaceValue {
 		return
 	} else if totalBids == sellOrder.Invoice.FaceValue {
 		err := db.UpdateSellOrderState(ctx, sellOrder)
@@ -51,7 +51,7 @@ func MatchingAlgorithm(ctx context.Context,  bid models.Bid) {
 
 	//trim the bid for the rest
 	newSize := bid.Size - (totalBids - sellOrder.Invoice.FaceValue)
-	newAmount := newSize-(newSize*bidDiscount)
+	newAmount := newSize - (newSize * bidDiscount)
 	amountToRelease := bid.Amount - newAmount
 
 	bid.Amount = newAmount
@@ -77,7 +77,7 @@ func discount(minor float32, mayor float32) float32 {
 	return 1 - (minor / mayor)
 }
 
-func releaseBalance(ctx context.Context, db repository.Database, bid models.Bid, amount float32) error{
+func releaseBalance(ctx context.Context, db repository.Database, bid models.Bid, amount float32) error {
 
 	details := fmt.Sprintf("An ammount of €%.2f are released to investor %d;",
 		amount,
@@ -85,30 +85,30 @@ func releaseBalance(ctx context.Context, db repository.Database, bid models.Bid,
 	)
 
 	_, err := db.SaveTransaction(ctx, models.Transaction{
-		Date:              time.Now(),
-		TransactionType:   models.CASH,
-		Details:           details,
-		TransactionDCType: models.DEBIT,
-		Value:             amount,
-		Customer:          models.Customer{Id: bid.Investor.Id},
-		SellOrder:         models.SellOrder{Id: bid.SellOrder.Id},
+		Date:            time.Now(),
+		TransactionType: models.CASH,
+		Details:         details,
+		Debit:           amount,
+		Credit:          models.ZeroCreditDebit,
+		Customer:        models.Customer{Id: bid.Investor.Id},
+		SellOrder:       models.SellOrder{Id: bid.SellOrder.Id},
 	})
 	if err != nil {
 		return err
 	}
 
 	_, err = db.SaveTransaction(ctx, models.Transaction{
-		Date:              time.Now(),
-		TransactionType:   models.RESERVED,
-		Details:           details,
-		TransactionDCType: models.CREDIT,
-		Value:             amount,
-		Customer:          models.Customer{Id: bid.Investor.Id},
-		SellOrder:         models.SellOrder{Id: bid.SellOrder.Id},
+		Date:            time.Now(),
+		TransactionType: models.RESERVED,
+		Details:         details,
+		Credit:          amount,
+		Debit:           models.ZeroCreditDebit,
+		Customer:        models.Customer{Id: bid.Investor.Id},
+		SellOrder:       models.SellOrder{Id: bid.SellOrder.Id},
 	})
 	if err != nil {
 		return err
 	}
-	
+
 	return nil
 }

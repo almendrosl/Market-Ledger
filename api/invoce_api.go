@@ -34,13 +34,13 @@ func (serviceImpl *MarketLedgerServiceImpl) CreateInvoice(ctx context.Context, i
 		sellOrder.Invoice.Number)
 
 	t := models.Transaction{
-		Date:              time.Now(),
-		TransactionType:   models.OWN_INVOICE,
-		Details:           details,
-		TransactionDCType: models.DEBIT,
-		Value:             sellOrder.Invoice.FaceValue,
-		Customer:          sellOrder.Invoice.Issuer.Customer,
-		SellOrder:         sellOrder,
+		Date:            time.Now(),
+		TransactionType: models.OWN_INVOICE,
+		Details:         details,
+		Debit:           sellOrder.Invoice.FaceValue,
+		Credit:          models.ZeroCreditDebit,
+		Customer:        sellOrder.Invoice.Issuer.Customer,
+		SellOrder:       sellOrder,
 	}
 
 	t, err = serviceImpl.db.SaveTransaction(ctx, t)
@@ -64,14 +64,14 @@ func (serviceImpl *MarketLedgerServiceImpl) CreateInvoice(ctx context.Context, i
 		},
 
 		Transaction: &pb.Transaction{
-			Id:                int32(t.Id),
-			Date:              t.Date.String(),
-			TransactionType:   pb.Transaction_OWN_INVOICE,
-			Details:           t.Details,
-			TransactionDCType: pb.Transaction_DEBIT,
-			Value:             t.Value,
-			CustomerId:        int32(t.Customer.Id),
-			SellOrderId:       int32(t.SellOrder.Id),
+			Id:              int32(t.Id),
+			Date:            t.Date.String(),
+			TransactionType: pb.Transaction_OWN_INVOICE,
+			Details:         t.Details,
+			Credit:          models.ZeroCreditDebit,
+			Debit:           t.Debit,
+			CustomerId:      int32(t.Customer.Id),
+			SellOrderId:     int32(t.SellOrder.Id),
 		},
 		Error: nil,
 	}, err

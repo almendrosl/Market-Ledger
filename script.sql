@@ -68,19 +68,19 @@ create table if not exists bid
 
 create table if not exists transaction
 (
-    id                   bigint generated always as identity (maxvalue 2147483647)
+    id               bigint generated always as identity (maxvalue 2147483647)
     constraint transaction_pkey
     primary key,
-    date                 timestamp with time zone not null,
-                                       transaction_type     varchar(255)             not null,
-    details              varchar(255),
-    transaction_d_c_type varchar(255)             not null,
-    value                double precision,
-    customer_id          bigint                   not null
+    date             timestamp with time zone not null,
+                                   transaction_type varchar(255)             not null,
+    details          varchar(255),
+    debit            double precision,
+    customer_id      bigint                   not null
     constraint transaction_customer_fkey
     references customer,
-    sell_order           bigint
+    sell_order_id    bigint
     constraint transaction_sell_order_fkey
-    references sell_order
+    references sell_order,
+    credit           double precision
     );
 
