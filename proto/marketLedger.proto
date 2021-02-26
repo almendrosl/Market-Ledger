@@ -7,6 +7,7 @@ service MarketLedgerService {
   rpc CreateInvoice (CreateInvoiceReq) returns (CreateInvoiceResp) {}
   rpc SellOrders (Empty) returns (SellOrdersResp) {}
   rpc PlaceBid (PlaceBidReq) returns (PlaceBidResp) {}
+  rpc OneSellOrder (OneSellOrderReq) returns (OneSellOrderResp) {}
 }
 
 message Empty {}
@@ -39,6 +40,8 @@ message SellOrder {
   Invoice invoice = 2;
   float seller_wants = 4;
   SellOrderState sell_order_state = 5;
+  repeated Bid bids =6;
+  repeated Transaction ledger =7;
 }
 
 
@@ -81,6 +84,14 @@ message CreateInvoiceResp {
 
 message SellOrdersResp {
   repeated SellOrder sell_orders = 1;
+}
+
+message OneSellOrderReq {
+  int32 sell_order_id = 1;
+}
+
+message OneSellOrderResp {
+  SellOrder sell_order = 1;
 }
 
 message PlaceBidReq{

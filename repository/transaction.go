@@ -13,7 +13,7 @@ func (db Database) SaveTransaction(ctx context.Context, t models.Transaction) (m
 		log.Fatal(err)
 	}
 
-	u := `INSERT INTO public.transaction (date, transaction_type, details, transaction_d_c_type, value, customer_id, sell_order) 
+	u := `INSERT INTO public.transaction (date, transaction_type, details, transaction_d_c_type, value, customer_id, sell_order_id) 
 			VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`
 
 	row := tx.QueryRowContext(ctx, u, t.Date, t.TransactionType, t.Details, t.TransactionDCType, t.Value, t.Customer.Id, t.SellOrder.Id)
