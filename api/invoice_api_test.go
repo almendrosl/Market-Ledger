@@ -4,9 +4,11 @@ import (
 	"AREX-Market-Ledger/repository"
 	"context"
 	"github.com/joho/godotenv"
+	"io/ioutil"
 	"log"
 	"net"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"google.golang.org/grpc"
@@ -32,7 +34,7 @@ func dialer() func(context.Context, string) (net.Conn, error) {
 
 	server := grpc.NewServer()
 
-	db := repository.InitDB()
+	db := testDbInit()
 
 	pb.RegisterMarketLedgerServiceServer(server, NewMarketLedgerServiceImpl(db))
 
@@ -46,6 +48,29 @@ func dialer() func(context.Context, string) (net.Conn, error) {
 	return func(context.Context, string) (net.Conn, error) {
 		return listener.Dial()
 	}
+}
+
+func testDbInit() repository.Database {
+	db, err := repository.Initialize(os.Getenv("TEST_DB_USER"),
+		os.Getenv("TEST_DB_PASSWORD"), os.Getenv("TEST_DB_PORT"),
+		os.Getenv("TEST_DB_HOST"), os.Getenv("TEST_DB_NAME"))
+	if err != nil {
+		log.Fatalf("Could not set up database: %v", err)
+	}
+
+	path := filepath.Join("../script.sql")
+
+	c, ioErr := ioutil.ReadFile(path)
+	if ioErr != nil {
+		log.Fatal(ioErr)
+	}
+
+	sql := string(c)
+	_, err = db.Conn.Exec(sql)
+	if err != nil {
+		log.Fatal(ioErr)
+	}
+	return db
 }
 
 func TestCreateInvoice(t *testing.T) {
