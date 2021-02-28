@@ -73,3 +73,25 @@ func (db Database) UpdateBid(ctx context.Context, bid models.Bid) error {
 
 	return nil
 }
+
+func (db Database) GetBidsBySellOrder(ctx context.Context, so models.SellOrder) ([]models.Bid, error) {
+	qb := `SELECT b.id, b.size, b.amount from bid b
+		WHERE b.sell_order_id = $1
+    `
+
+	rows, err := db.Conn.QueryContext(ctx, qb, so.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var bids []models.Bid
+
+	for rows.Next() {
+		var bid models.Bid
+		rows.Scan(&bid.Id, &bid.Size, &bid.Amount)
+		bids = append(bids, bid)
+	}
+	return bids, nil
+}

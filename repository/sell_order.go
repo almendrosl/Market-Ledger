@@ -49,26 +49,19 @@ func (db Database) OneSellOrder(ctx context.Context, soID int32) (models.SellOrd
 		return so, err
 	}
 
-	qb := `SELECT b.id, b.size, b.amount from bid b
-		WHERE b.sell_order_id = $1
-    `
-
-	rows, err := db.Conn.QueryContext(ctx, qb, so.Id)
+	bids, err := db.GetBidsBySellOrder(ctx, so)
 	if err != nil {
 		return so, err
 	}
 
-	defer rows.Close()
+	so.Bids = bids
 
-	var bids []models.Bid
-
-	for rows.Next() {
-		var bid models.Bid
-		rows.Scan(&bid.Id, &bid.Size, &bid.Amount)
-		bids = append(bids, bid)
+	transactions, err :=db.GetTransactionsBySellOrder(ctx, so)
+	if err != nil {
+		return models.SellOrder{}, err
 	}
 
-	so.Bids = bids
+	so.Ledger = transactions
 
 	return so, nil
 }

@@ -57,6 +57,20 @@ func (serviceImpl *MarketLedgerServiceImpl) OneSellOrder(ctx context.Context, in
 		bids = append(bids, pbBid)
 	}
 
+	var ledger []*pb.Transaction
+	for _, t := range so.Ledger{
+		pbT := &pb.Transaction{
+			Id:              t.Id,
+			Date:            t.Date.String(),
+			TransactionType: mapTransactionType(t.TransactionType),
+			Details:         t.Details,
+			Debit:           t.Debit,
+			Credit:          t.Credit,
+			CustomerId:      t.Customer.Id,
+		}
+		ledger = append(ledger, pbT)
+	}
+
 	sellOrdersResp = &pb.OneSellOrderResp{
 		SellOrder: &pb.SellOrder{
 			Id: so.Id,
@@ -67,6 +81,7 @@ func (serviceImpl *MarketLedgerServiceImpl) OneSellOrder(ctx context.Context, in
 				FaceValue:   so.Invoice.FaceValue,
 				IssuerId:    so.Invoice.Issuer.Id,
 			},
+			Ledger: ledger,
 			SellerWants: so.SellerWants,
 			SellOrderState: mapSellOrderState(so.SellOrderState),
 			Bids: bids,
@@ -88,4 +103,26 @@ func mapSellOrderState(soState models.SellOrderState) pb.SellOrder_SellOrderStat
 		return pb.SellOrder_UNLOCKED
 	}
 	return pb.SellOrder_LOCKED
+}
+
+func mapTransactionType(tType models.TransactionType) pb.Transaction_TransactionType{
+	switch tType {
+	case models.CASH:
+		return pb.Transaction_CASH
+	case models.CAPITAL:
+		return pb.Transaction_CAPITAL
+	case models.OWN_INVOICE:
+		return pb.Transaction_OWN_INVOICE
+	case models.EXPECTED_PAID:
+		return pb.Transaction_EXPECTED_PAID
+	case models.EXPECTED_PROFIT:
+		return pb.Transaction_EXPECTED_PROFIT
+	case models.RESERVED:
+		return pb.Transaction_RESERVED
+	case models.OWES_INVOICE:
+		return pb.Transaction_OWES_INVOICE
+	case models.LOSS:
+		return pb.Transaction_LOSS
+	}
+	return pb.Transaction_OWN_INVOICE
 }

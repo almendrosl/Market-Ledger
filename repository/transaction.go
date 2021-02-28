@@ -51,3 +51,28 @@ func (db Database) GetCashFromUser(ctx context.Context, uID int32) (float32, err
 
 	return balance, nil
 }
+
+func (db Database) GetTransactionsBySellOrder(ctx context.Context, so models.SellOrder) ([]models.Transaction, error) {
+	var transactions []models.Transaction
+
+	qb := `SELECT id, date, transaction_type, details, debit, credit, customer_id FROM public.transaction
+				WHERE transaction.sell_order_id = $1
+    `
+
+	rows, err := db.Conn.QueryContext(ctx, qb, so.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+
+	for rows.Next() {
+		var transaction models.Transaction
+		rows.Scan(&transaction.Id, &transaction.Date, &transaction.TransactionType,
+			&transaction.Details, &transaction.Debit, &transaction.Credit,
+			&transaction.Customer.Id)
+		transactions = append(transactions, transaction)
+	}
+	return transactions, nil
+}

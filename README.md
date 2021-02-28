@@ -4,6 +4,12 @@ To compile protobuf execute in main directory
 
 `protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative proto/marketLedger.proto`
 
+### Make postgres_test Data Base
+`
+create database postgres_test;`
+
+To run the main file type the following command
+
 ### Run Main.go
 
 To run the main file type the following command
