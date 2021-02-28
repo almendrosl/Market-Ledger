@@ -91,6 +91,40 @@ func (serviceImpl *MarketLedgerServiceImpl) OneSellOrder(ctx context.Context, in
 	return sellOrdersResp, nil
 }
 
+
+func (serviceImpl *MarketLedgerServiceImpl) FinishSellOrder(ctx context.Context, in *pb.FinishSellOrderReq) (*pb.FinishSellOrderResp, error){
+	var resp *pb.FinishSellOrderResp
+
+	so := models.SellOrder{
+		Id:             in.SellOrderId,
+		SellOrderState: mapFinishSellOrderState(in.FinishSellOrderType),
+	}
+
+	err := serviceImpl.db.UpdateSellOrderState(ctx, so)
+	if err != nil {
+		return &pb.FinishSellOrderResp{}, err
+	}
+
+	err = serviceImpl.db.RevertTransaction(ctx, so)
+	if err != nil {
+		return &pb.FinishSellOrderResp{}, err
+	}
+
+	resp = &pb.FinishSellOrderResp{SellOrder: &pb.SellOrder{Id: so.Id}}
+
+	return resp, nil
+}
+
+func mapFinishSellOrderState(orderType pb.FinishSellOrderReq_FinishSellOrderType) models.SellOrderState{
+	switch orderType {
+	case pb.FinishSellOrderReq_COMMIT:
+		return models.COMMITTED
+	case pb.FinishSellOrderReq_REJECT:
+		return models.REVERSED
+	}
+	return models.REVERSED
+}
+
 func mapSellOrderState(soState models.SellOrderState) pb.SellOrder_SellOrderState {
 	switch soState {
 	case models.LOCKED:

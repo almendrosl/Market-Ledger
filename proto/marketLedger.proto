@@ -8,6 +8,7 @@ service MarketLedgerService {
   rpc SellOrders (Empty) returns (SellOrdersResp) {}
   rpc PlaceBid (PlaceBidReq) returns (PlaceBidResp) {}
   rpc OneSellOrder (OneSellOrderReq) returns (OneSellOrderResp) {}
+  rpc FinishSellOrder (FinishSellOrderReq) returns (FinishSellOrderResp) {}
 }
 
 message Empty {}
@@ -40,8 +41,8 @@ message SellOrder {
   Invoice invoice = 2;
   float seller_wants = 4;
   SellOrderState sell_order_state = 5;
-  repeated Bid bids =6;
-  repeated Transaction ledger =7;
+  repeated Bid bids = 6;
+  repeated Transaction ledger = 7;
 }
 
 
@@ -95,6 +96,19 @@ message PlaceBidReq{
 
 message PlaceBidResp{
   Bid bid = 1;
+}
+
+message FinishSellOrderReq {
+  enum FinishSellOrderType {
+    REJECT = 0;
+    COMMIT = 1;
+  }
+  FinishSellOrderType finish_sell_order_type = 1;
+  int32 sell_order_id = 2;
+}
+
+message FinishSellOrderResp{
+  SellOrder sell_order = 1;
 }
 
 message Error {

@@ -66,7 +66,6 @@ func (db Database) GetTransactionsBySellOrder(ctx context.Context, so models.Sel
 
 	defer rows.Close()
 
-
 	for rows.Next() {
 		var transaction models.Transaction
 		rows.Scan(&transaction.Id, &transaction.Date, &transaction.TransactionType,
@@ -75,4 +74,26 @@ func (db Database) GetTransactionsBySellOrder(ctx context.Context, so models.Sel
 		transactions = append(transactions, transaction)
 	}
 	return transactions, nil
+}
+
+func (db Database) RevertTransaction(ctx context.Context, so models.SellOrder) error {
+	qb := `UPDATE public.transaction
+		SET    credit = CASE WHEN credit=0 THEN debit ELSE credit END
+     			, debit = CASE WHEN debit=0 THEN credit ELSE debit END
+		where sell_order_id = $1;
+    `
+
+	stmt, err := db.Conn.PrepareContext(ctx, qb)
+	if err != nil {
+		return err
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx, so.Id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

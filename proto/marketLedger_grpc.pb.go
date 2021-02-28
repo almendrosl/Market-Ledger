@@ -22,6 +22,7 @@ type MarketLedgerServiceClient interface {
 	SellOrders(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*SellOrdersResp, error)
 	PlaceBid(ctx context.Context, in *PlaceBidReq, opts ...grpc.CallOption) (*PlaceBidResp, error)
 	OneSellOrder(ctx context.Context, in *OneSellOrderReq, opts ...grpc.CallOption) (*OneSellOrderResp, error)
+	FinishSellOrder(ctx context.Context, in *FinishSellOrderReq, opts ...grpc.CallOption) (*FinishSellOrderResp, error)
 }
 
 type marketLedgerServiceClient struct {
@@ -68,6 +69,15 @@ func (c *marketLedgerServiceClient) OneSellOrder(ctx context.Context, in *OneSel
 	return out, nil
 }
 
+func (c *marketLedgerServiceClient) FinishSellOrder(ctx context.Context, in *FinishSellOrderReq, opts ...grpc.CallOption) (*FinishSellOrderResp, error) {
+	out := new(FinishSellOrderResp)
+	err := c.cc.Invoke(ctx, "/marketLedgerGrpc.MarketLedgerService/FinishSellOrder", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MarketLedgerServiceServer is the server API for MarketLedgerService service.
 // All implementations must embed UnimplementedMarketLedgerServiceServer
 // for forward compatibility
@@ -76,6 +86,7 @@ type MarketLedgerServiceServer interface {
 	SellOrders(context.Context, *Empty) (*SellOrdersResp, error)
 	PlaceBid(context.Context, *PlaceBidReq) (*PlaceBidResp, error)
 	OneSellOrder(context.Context, *OneSellOrderReq) (*OneSellOrderResp, error)
+	FinishSellOrder(context.Context, *FinishSellOrderReq) (*FinishSellOrderResp, error)
 	mustEmbedUnimplementedMarketLedgerServiceServer()
 }
 
@@ -94,6 +105,9 @@ func (UnimplementedMarketLedgerServiceServer) PlaceBid(context.Context, *PlaceBi
 }
 func (UnimplementedMarketLedgerServiceServer) OneSellOrder(context.Context, *OneSellOrderReq) (*OneSellOrderResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method OneSellOrder not implemented")
+}
+func (UnimplementedMarketLedgerServiceServer) FinishSellOrder(context.Context, *FinishSellOrderReq) (*FinishSellOrderResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FinishSellOrder not implemented")
 }
 func (UnimplementedMarketLedgerServiceServer) mustEmbedUnimplementedMarketLedgerServiceServer() {}
 
@@ -180,6 +194,24 @@ func _MarketLedgerService_OneSellOrder_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MarketLedgerService_FinishSellOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FinishSellOrderReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MarketLedgerServiceServer).FinishSellOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/marketLedgerGrpc.MarketLedgerService/FinishSellOrder",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MarketLedgerServiceServer).FinishSellOrder(ctx, req.(*FinishSellOrderReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MarketLedgerService_ServiceDesc is the grpc.ServiceDesc for MarketLedgerService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -202,6 +234,10 @@ var MarketLedgerService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "OneSellOrder",
 			Handler:    _MarketLedgerService_OneSellOrder_Handler,
+		},
+		{
+			MethodName: "FinishSellOrder",
+			Handler:    _MarketLedgerService_FinishSellOrder_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
