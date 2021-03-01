@@ -4,6 +4,7 @@ import (
 	"AREX-Market-Ledger/models"
 	pb "AREX-Market-Ledger/proto"
 	"context"
+	"errors"
 )
 
 func (serviceImpl *MarketLedgerServiceImpl) SellOrders(ctx context.Context, in *pb.Empty) (*pb.SellOrdersResp, error) {
@@ -95,12 +96,17 @@ func (serviceImpl *MarketLedgerServiceImpl) OneSellOrder(ctx context.Context, in
 func (serviceImpl *MarketLedgerServiceImpl) FinishSellOrder(ctx context.Context, in *pb.FinishSellOrderReq) (*pb.FinishSellOrderResp, error) {
 	var resp *pb.FinishSellOrderResp
 
-	so := models.SellOrder{
-		Id:             in.SellOrderId,
-		SellOrderState: mapFinishSellOrderState(in.FinishSellOrderType),
+	so, err := serviceImpl.db.OneSellOrder(ctx, in.SellOrderId)
+	if err != nil {
+		return &pb.FinishSellOrderResp{}, err
 	}
 
-	err := serviceImpl.db.UpdateSellOrderState(ctx, so)
+	if so.SellOrderState != models.LOCKED{
+		return &pb.FinishSellOrderResp{}, errors.New("the sell order is not locked")
+	}
+
+	so.SellOrderState = mapFinishSellOrderState(in.FinishSellOrderType)
+	err = serviceImpl.db.UpdateSellOrderState(ctx, so)
 	if err != nil {
 		return &pb.FinishSellOrderResp{}, err
 	}

@@ -13,6 +13,15 @@ import (
 func (serviceImpl *MarketLedgerServiceImpl) PlaceBid(ctx context.Context, in *pb.PlaceBidReq) (*pb.PlaceBidResp, error) {
 	var bidResp *pb.PlaceBidResp
 
+	so, err := serviceImpl.db.OneSellOrder(ctx, in.Bid.SellOrderId)
+	if err != nil {
+		return bidResp, err
+	}
+
+	if so.SellOrderState != models.UNLOCKED{
+		return nil, errors.New("the sell order is not unlocked")
+	}
+
 	balance, err := serviceImpl.db.GetCashFromUser(ctx, in.Bid.InvestorId)
 	if err != nil {
 		return bidResp, err

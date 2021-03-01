@@ -108,18 +108,13 @@ func (db Database) RevertTransaction(ctx context.Context, so models.SellOrder) e
 }
 
 func (db Database) CommitTransaction(ctx context.Context, so models.SellOrder) error {
-	oso, err := db.OneSellOrder(ctx, so.Id)
-	if err != nil {
-		return err
-	}
-
 	var issuerLoss float32
 
-	for _, bid := range oso.Bids{
+	for _, bid := range so.Bids{
 		details := fmt.Sprintf("%s owes €%.2f for invoice %s to the investor %s",
-			oso.Invoice.Issuer.Name,
+			so.Invoice.Issuer.Name,
 			bid.Size,
-			oso.Invoice.Number,
+			so.Invoice.Number,
 			bid.Investor.Name)
 		t1 := models.Transaction{
 			Date:            time.Now(),
@@ -127,10 +122,10 @@ func (db Database) CommitTransaction(ctx context.Context, so models.SellOrder) e
 			Details:         details,
 			Debit:           models.ZeroCreditDebit,
 			Credit:          bid.Size,
-			Customer:        models.Customer{Id: oso.Invoice.Issuer.Id},
-			SellOrder:       models.SellOrder{Id: oso.Id},
+			Customer:        models.Customer{Id: so.Invoice.Issuer.Id},
+			SellOrder:       models.SellOrder{Id: so.Id},
 		}
-		_, err = db.SaveTransaction(ctx,t1)
+		_, err := db.SaveTransaction(ctx,t1)
 		if err != nil {
 			return err
 		}
@@ -145,7 +140,7 @@ func (db Database) CommitTransaction(ctx context.Context, so models.SellOrder) e
 			Debit:           models.ZeroCreditDebit,
 			Credit:          bid.Amount,
 			Customer:        models.Customer{Id: bid.Investor.Id},
-			SellOrder:       models.SellOrder{Id: oso.Id},
+			SellOrder:       models.SellOrder{Id: so.Id},
 		})
 		if err != nil {
 			return err
@@ -153,16 +148,16 @@ func (db Database) CommitTransaction(ctx context.Context, so models.SellOrder) e
 
 		details3 := fmt.Sprintf("The amount €%.2f is paid for the purcharse to party %s for the invoice %s",
 			bid.Amount,
-			oso.Invoice.Issuer.Name,
-			oso.Invoice.Number)
+			so.Invoice.Issuer.Name,
+			so.Invoice.Number)
 		_, err = db.SaveTransaction(ctx, models.Transaction{
 			Date:            time.Now(),
 			TransactionType: models.CASH,
 			Details:         details3,
 			Debit:           bid.Amount,
 			Credit:          models.ZeroCreditDebit,
-			Customer:        models.Customer{Id: oso.Invoice.Issuer.Id},
-			SellOrder:       models.SellOrder{Id: oso.Id},
+			Customer:        models.Customer{Id: so.Invoice.Issuer.Id},
+			SellOrder:       models.SellOrder{Id: so.Id},
 		})
 		if err != nil {
 			return err
@@ -171,7 +166,7 @@ func (db Database) CommitTransaction(ctx context.Context, so models.SellOrder) e
 		details4 := fmt.Sprintf("The party %s expect €%.2f to be paid by %s",
 			bid.Investor.Name,
 			bid.Size,
-			oso.Invoice.Issuer.Name,
+			so.Invoice.Issuer.Name,
 		)
 		_, err = db.SaveTransaction(ctx, models.Transaction{
 			Date:            time.Now(),
@@ -180,7 +175,7 @@ func (db Database) CommitTransaction(ctx context.Context, so models.SellOrder) e
 			Debit:           bid.Size,
 			Credit:          models.ZeroCreditDebit,
 			Customer:        models.Customer{Id: bid.Investor.Id},
-			SellOrder:       models.SellOrder{Id: oso.Id},
+			SellOrder:       models.SellOrder{Id: so.Id},
 		})
 		if err != nil {
 			return err
@@ -198,7 +193,7 @@ func (db Database) CommitTransaction(ctx context.Context, so models.SellOrder) e
 			Debit:           models.ZeroCreditDebit,
 			Credit:          expectedProfit,
 			Customer:        models.Customer{Id: bid.Investor.Id},
-			SellOrder:       models.SellOrder{Id: oso.Id},
+			SellOrder:       models.SellOrder{Id: so.Id},
 		})
 
 		if err != nil {
@@ -209,18 +204,18 @@ func (db Database) CommitTransaction(ctx context.Context, so models.SellOrder) e
 	}
 
 	details := fmt.Sprintf("The party %s owes €%.2f for invoice %s",
-		oso.Invoice.Issuer.Name,
-		oso.Invoice.FaceValue,
-		oso.Invoice.Number,
+		so.Invoice.Issuer.Name,
+		so.Invoice.FaceValue,
+		so.Invoice.Number,
 		)
-	_, err = db.SaveTransaction(ctx, models.Transaction{
+	_, err := db.SaveTransaction(ctx, models.Transaction{
 		Date:            time.Now(),
 		TransactionType: models.OWN_INVOICE,
 		Details:         details,
 		Debit:           models.ZeroCreditDebit,
-		Credit:          oso.Invoice.FaceValue,
-		Customer:        models.Customer{Id: oso.Invoice.Issuer.Id},
-		SellOrder:       models.SellOrder{Id: oso.Id},
+		Credit:          so.Invoice.FaceValue,
+		Customer:        models.Customer{Id: so.Invoice.Issuer.Id},
+		SellOrder:       models.SellOrder{Id: so.Id},
 	})
 	if err != nil {
 		return err
@@ -236,15 +231,15 @@ func (db Database) CommitTransaction(ctx context.Context, so models.SellOrder) e
 		Details:         details1,
 		Debit:           issuerLoss,
 		Credit:          models.ZeroCreditDebit,
-		Customer:        models.Customer{Id: oso.Invoice.Issuer.Id},
-		SellOrder:       models.SellOrder{Id: oso.Id},
+		Customer:        models.Customer{Id: so.Invoice.Issuer.Id},
+		SellOrder:       models.SellOrder{Id: so.Id},
 	})
 	if err != nil {
 		return err
 	}
 
-	oso.SellOrderState = models.COMMITTED
-	err = db.UpdateSellOrderState(ctx, oso)
+	so.SellOrderState = models.COMMITTED
+	err = db.UpdateSellOrderState(ctx, so)
 	if err != nil {
 		return nil
 	}
