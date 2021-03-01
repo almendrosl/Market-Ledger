@@ -4,12 +4,20 @@ import (
 	"AREX-Market-Ledger/models"
 	"AREX-Market-Ledger/repository"
 	"context"
+	"flag"
 	"fmt"
 	"time"
 )
 
 func MatchingAlgorithm(ctx context.Context, bid models.Bid) {
-	db := repository.InitDB()
+
+	var db repository.Database
+	if flag.Lookup("test.v") == nil {
+		db = repository.InitDB()
+	} else {
+		db = repository.DbInitTest()
+	}
+
 	defer db.Conn.Close()
 	ctx = context.Background()
 

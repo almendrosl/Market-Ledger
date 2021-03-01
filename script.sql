@@ -92,9 +92,15 @@ create table transaction
 
 INSERT INTO public.customer (name) VALUES ('investor_1');
 INSERT INTO public.customer (name) VALUES ('issuer_2');
+INSERT INTO public.customer (name) VALUES ('investor_2');
 INSERT INTO public.investor (customer_id) VALUES (1);
 INSERT INTO public.issuer (customer_id) VALUES (2);
+INSERT INTO public.investor (customer_id) VALUES (3);
 INSERT INTO public.invoice (number, description, face_value, issuer_id) VALUES ('123123-332-11', '500 fabric black', 5000, 2);
 INSERT INTO public.sell_order (invoice_id, seller_wants, sell_order_state) VALUES (1, 4500, 'Unlocked');
 INSERT INTO public.transaction (date, transaction_type, details, debit, customer_id, sell_order_id, credit) VALUES ('2021-02-28 01:12:41.376000', 'Capital', 'Investor 1 add €1000 ', 0, 1, null, 1000);
 INSERT INTO public.transaction (date, transaction_type, details, debit, customer_id, sell_order_id, credit) VALUES ('2021-02-28 01:12:41.376000', 'Cash', 'Investor 1 add €1000 ', 1000, 1, null, 0);
+INSERT INTO public.transaction (date, transaction_type, details, debit, customer_id, sell_order_id, credit) VALUES ('2021-02-28 01:12:41.376000', 'Capital', 'Investor 1 add €9000 ', 0, 3, null, 9000);
+INSERT INTO public.transaction (date, transaction_type, details, debit, customer_id, sell_order_id, credit) VALUES ('2021-02-28 01:12:41.376000', 'Cash', 'Investor 1 add €9000 ', 9000, 3, null, 0);
+INSERT INTO public.invoice (number, description, face_value, issuer_id) VALUES ('123123-332-11', '500 fabric black', 1000, 2);
+INSERT INTO public.sell_order (invoice_id, seller_wants, sell_order_state) VALUES (2, 900, 'Unlocked');

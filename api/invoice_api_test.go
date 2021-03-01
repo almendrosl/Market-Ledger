@@ -34,7 +34,8 @@ func dialer() func(context.Context, string) (net.Conn, error) {
 
 	server := grpc.NewServer()
 
-	db := testDbInit()
+	db := repository.DbInitTest()
+	executeDBInitialsScript(db)
 
 	pb.RegisterMarketLedgerServiceServer(server, NewMarketLedgerServiceImpl(db))
 
@@ -50,14 +51,7 @@ func dialer() func(context.Context, string) (net.Conn, error) {
 	}
 }
 
-func testDbInit() repository.Database {
-	db, err := repository.Initialize(os.Getenv("TEST_DB_USER"),
-		os.Getenv("TEST_DB_PASSWORD"), os.Getenv("TEST_DB_PORT"),
-		os.Getenv("TEST_DB_HOST"), os.Getenv("TEST_DB_NAME"))
-	if err != nil {
-		log.Fatalf("Could not set up database: %v", err)
-	}
-
+func executeDBInitialsScript(db repository.Database) {
 	path := filepath.Join("../script.sql")
 
 	c, ioErr := ioutil.ReadFile(path)
@@ -66,12 +60,13 @@ func testDbInit() repository.Database {
 	}
 
 	sql := string(c)
-	_, err = db.Conn.Exec(sql)
+	_, err := db.Conn.Exec(sql)
 	if err != nil {
 		log.Fatal(ioErr)
 	}
-	return db
 }
+
+
 
 func TestCreateInvoice(t *testing.T) {
 	tests := []struct {

@@ -3,9 +3,8 @@ package repository
 import (
 	"database/sql"
 	"fmt"
-	"log"
-
 	_ "github.com/lib/pq"
+	"log"
 	"os"
 )
 
@@ -42,4 +41,15 @@ func Initialize(DbUser, DbPassword, DbPort, DbHost, DbName string) (Database, er
 	}
 	log.Println("Database connection established")
 	return db, nil
+}
+
+func DbInitTest() Database {
+	db, err := Initialize(os.Getenv("TEST_DB_USER"),
+		os.Getenv("TEST_DB_PASSWORD"), os.Getenv("TEST_DB_PORT"),
+		os.Getenv("TEST_DB_HOST"), os.Getenv("TEST_DB_NAME"))
+	if err != nil {
+		log.Fatalf("Could not set up database: %v", err)
+	}
+
+	return db
 }
