@@ -47,8 +47,8 @@ func (db Database) SellInvoice(ctx context.Context, in *pb.CreateInvoiceReq) (mo
 		},
 	}
 
-	soRow := tx.QueryRowContext(ctx, "INSERT INTO public.sell_order (invoice_id, seller_wants) VALUES ($1, $2) RETURNING id",
-		iID, in.SellOrder.SellerWants)
+	soRow := tx.QueryRowContext(ctx, "INSERT INTO public.sell_order (invoice_id, seller_wants, sell_order_state) VALUES ($1, $2, $3) RETURNING id",
+		iID, in.SellOrder.SellerWants, models.UNLOCKED)
 	if err != nil {
 		tx.Rollback()
 		return sellOrder, err

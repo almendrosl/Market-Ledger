@@ -35,16 +35,18 @@ func (db Database) OneSellOrder(ctx context.Context, soID int32) (models.SellOrd
 	var so models.SellOrder
 
 	q := `
-    SELECT t.id, t.seller_wants, i.id, i.number, i.description, i.face_value , i.issuer_id
-    	FROM public.sell_order t
-		join invoice i on i.id = t.invoice_id
-		WHERE t.id = $1;
+    SELECT so.id, so.seller_wants, i.id, i.number, i.description, i.face_value , i.issuer_id, cu.name, so.sell_order_state
+    	FROM public.sell_order so
+		join invoice i on i.id = so.invoice_id
+        join customer cu on cu.id = i.issuer_id
+		WHERE so.id = $1;
     `
 
 	row := db.Conn.QueryRowContext(ctx, q, soID)
 
 	err := row.Scan(&so.Id, &so.SellerWants, &so.Invoice.Id, &so.Invoice.Number,
-		&so.Invoice.Description, &so.Invoice.FaceValue, &so.Invoice.Issuer.Id)
+		&so.Invoice.Description, &so.Invoice.FaceValue, &so.Invoice.Issuer.Id,
+		&so.Invoice.Issuer.Name, &so.SellOrderState)
 	if err != nil {
 		return so, err
 	}

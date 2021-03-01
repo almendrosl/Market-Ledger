@@ -26,7 +26,7 @@ func (serviceImpl *MarketLedgerServiceImpl) SellOrders(ctx context.Context, in *
 				FaceValue:   so.Invoice.FaceValue,
 				IssuerId:    so.Invoice.Issuer.Id,
 			},
-			SellerWants: so.SellerWants,
+			SellerWants:    so.SellerWants,
 			SellOrderState: mapSellOrderState(so.SellOrderState),
 		}
 		sor.SellOrders = append(sor.SellOrders, sellOrder)
@@ -36,7 +36,7 @@ func (serviceImpl *MarketLedgerServiceImpl) SellOrders(ctx context.Context, in *
 
 }
 
-func (serviceImpl *MarketLedgerServiceImpl) OneSellOrder(ctx context.Context, in *pb.OneSellOrderReq) (*pb.OneSellOrderResp, error){
+func (serviceImpl *MarketLedgerServiceImpl) OneSellOrder(ctx context.Context, in *pb.OneSellOrderReq) (*pb.OneSellOrderResp, error) {
 	var sellOrdersResp *pb.OneSellOrderResp
 
 	so, err := serviceImpl.db.OneSellOrder(ctx, in.SellOrderId)
@@ -46,7 +46,7 @@ func (serviceImpl *MarketLedgerServiceImpl) OneSellOrder(ctx context.Context, in
 	}
 
 	var bids []*pb.Bid
-	for _, bid := range so.Bids{
+	for _, bid := range so.Bids {
 		pbBid := &pb.Bid{
 			Id:          bid.Id,
 			Size:        bid.Size,
@@ -58,7 +58,7 @@ func (serviceImpl *MarketLedgerServiceImpl) OneSellOrder(ctx context.Context, in
 	}
 
 	var ledger []*pb.Transaction
-	for _, t := range so.Ledger{
+	for _, t := range so.Ledger {
 		pbT := &pb.Transaction{
 			Id:              t.Id,
 			Date:            t.Date.String(),
@@ -67,6 +67,7 @@ func (serviceImpl *MarketLedgerServiceImpl) OneSellOrder(ctx context.Context, in
 			Debit:           t.Debit,
 			Credit:          t.Credit,
 			CustomerId:      t.Customer.Id,
+			SellOrderId:     t.SellOrder.Id,
 		}
 		ledger = append(ledger, pbT)
 	}
@@ -81,18 +82,17 @@ func (serviceImpl *MarketLedgerServiceImpl) OneSellOrder(ctx context.Context, in
 				FaceValue:   so.Invoice.FaceValue,
 				IssuerId:    so.Invoice.Issuer.Id,
 			},
-			Ledger: ledger,
-			SellerWants: so.SellerWants,
+			Ledger:         ledger,
+			SellerWants:    so.SellerWants,
 			SellOrderState: mapSellOrderState(so.SellOrderState),
-			Bids: bids,
+			Bids:           bids,
 		},
 	}
 
 	return sellOrdersResp, nil
 }
 
-
-func (serviceImpl *MarketLedgerServiceImpl) FinishSellOrder(ctx context.Context, in *pb.FinishSellOrderReq) (*pb.FinishSellOrderResp, error){
+func (serviceImpl *MarketLedgerServiceImpl) FinishSellOrder(ctx context.Context, in *pb.FinishSellOrderReq) (*pb.FinishSellOrderResp, error) {
 	var resp *pb.FinishSellOrderResp
 
 	so := models.SellOrder{
@@ -105,9 +105,16 @@ func (serviceImpl *MarketLedgerServiceImpl) FinishSellOrder(ctx context.Context,
 		return &pb.FinishSellOrderResp{}, err
 	}
 
-	err = serviceImpl.db.RevertTransaction(ctx, so)
-	if err != nil {
-		return &pb.FinishSellOrderResp{}, err
+	if so.SellOrderState == models.REVERSED {
+		err = serviceImpl.db.RevertTransaction(ctx, so)
+		if err != nil {
+			return &pb.FinishSellOrderResp{}, err
+		}
+	} else {
+		err = serviceImpl.db.CommitTransaction(ctx, so)
+		if err != nil {
+			return &pb.FinishSellOrderResp{}, err
+		}
 	}
 
 	resp = &pb.FinishSellOrderResp{SellOrder: &pb.SellOrder{Id: so.Id}}
@@ -115,7 +122,7 @@ func (serviceImpl *MarketLedgerServiceImpl) FinishSellOrder(ctx context.Context,
 	return resp, nil
 }
 
-func mapFinishSellOrderState(orderType pb.FinishSellOrderReq_FinishSellOrderType) models.SellOrderState{
+func mapFinishSellOrderState(orderType pb.FinishSellOrderReq_FinishSellOrderType) models.SellOrderState {
 	switch orderType {
 	case pb.FinishSellOrderReq_COMMIT:
 		return models.COMMITTED
@@ -139,7 +146,7 @@ func mapSellOrderState(soState models.SellOrderState) pb.SellOrder_SellOrderStat
 	return pb.SellOrder_LOCKED
 }
 
-func mapTransactionType(tType models.TransactionType) pb.Transaction_TransactionType{
+func mapTransactionType(tType models.TransactionType) pb.Transaction_TransactionType {
 	switch tType {
 	case models.CASH:
 		return pb.Transaction_CASH

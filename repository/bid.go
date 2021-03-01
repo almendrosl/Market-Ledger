@@ -75,7 +75,8 @@ func (db Database) UpdateBid(ctx context.Context, bid models.Bid) error {
 }
 
 func (db Database) GetBidsBySellOrder(ctx context.Context, so models.SellOrder) ([]models.Bid, error) {
-	qb := `SELECT b.id, b.size, b.amount from bid b
+	qb := `SELECT b.id, b.size, b.amount, c.name, c.id from bid b
+			join customer c on c.id = b.investor_id
 		WHERE b.sell_order_id = $1
     `
 
@@ -90,7 +91,7 @@ func (db Database) GetBidsBySellOrder(ctx context.Context, so models.SellOrder) 
 
 	for rows.Next() {
 		var bid models.Bid
-		rows.Scan(&bid.Id, &bid.Size, &bid.Amount)
+		rows.Scan(&bid.Id, &bid.Size, &bid.Amount, &bid.Investor.Name, &bid.Investor.Id)
 		bids = append(bids, bid)
 	}
 	return bids, nil
