@@ -1,4 +1,4 @@
-# AREX Market Ledger
+# Market Ledger
 
 To compile protobuf execute in main directory
 
